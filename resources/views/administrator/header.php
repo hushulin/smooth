@@ -63,7 +63,7 @@
                 </li>
                 <li>
                     <a href="/administrator/orderWillWin">
-                        <?php if(env('ORDER_WILL_WIN')) echo '强制盈利已开'; echo "<input id=\"my-rate\" value=\"1\">"; else echo '强制盈利已关'; ?>
+                        <?php if(env('ORDER_WILL_WIN')) { echo '强制盈利已开'; echo "<input id=\"my-rate\" value=\"1\">"; } else echo '强制盈利已关'; ?>
                     </a>
                 </li>
                 <li>
