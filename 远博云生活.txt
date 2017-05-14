@@ -1,0 +1,14 @@
+程序大致上已经搭建完成了。
+等支付通道申请好后，帮你对接支付就好了
+后台管理地址：http://junheng.bceapp.com/administrator
+账号3158553974@qq.com  密码7450563
+
+后续的工作，因为我们的数据来源于真实大盘数据，所以需要进行几个文件来获取大盘数据。
+请下载本浏览器并安装自动刷新插件，设置每1秒自动刷新如下文件。
+
+
+http://junheng.bceapp.com/api/fetch
+http://junheng.bceapp.com/api/compute
+
+浏览器插件下载地址及安装说明。
+链接：https://pan.baidu.com/s/1hrU74Le 密码：ydlk

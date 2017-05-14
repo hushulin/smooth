@@ -1,0 +1,31 @@
+
+/**************/
+
+html,body,input,p,ul,ol{ margin:0; padding:0;}
+img{width:100%;}
+input:focus{outline:none;}
+li{list-style:none;}
+body{font-size:15px;}
+
+.top{padding:5px; text-align:center;}
+
+.box{font-family:'宋体';color:#242424;}
+.box h2{ font-size:18px;  padding:20px; border-bottom:1px solid #b6bdc5;}
+.box form{ padding:20px;}
+.box form p{ padding-bottom:20px; font-weight:600;}
+.box form span{ color:#acb3b9;z-index:-1;}
+
+.box_{ overflow:hidden;}
+.box_ li{ width:calc(46% - 4px);margin-bottom:10px; float:left; border:2px solid #b6bdc5; border-radius:6px; list-style:none; padding:2% 0px; text-align:center;margin-right: 8%;color:#0a9cff; cursor:pointer;}
+.box_ li:nth-child(2n){ margin-right:0px;}
+.box_ li img{ position:absolute; margin-top:-45px; margin-left:99px; z-index:5; display:none;}
+.box_ li input{ position:absolute; opacity:0; width:36px; background:#fff;}
+textarea {margin-top:20px; padding:5px; width:calc(100% - 10px);height:100px;border-radius:4px;}
+
+
+.box button{ width:100%;  color:#fff; text-align:center; line-height:25px; border:none; margin-top:20px; }
+#button1{ background:#fff;border:1px solid #ccc;color:#999;}
+@media only screen and (min-width: 320px) and (max-width: 370px) {
+	 bosy{font-size:18px;}
+}
+.xlb{ float:left; display:block; overflow:hidden; padding:7px 10px 0px 5px; color:#e46e0a; font-size:23px;}
