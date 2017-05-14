@@ -201,7 +201,7 @@
         alert('强制盈利机率设置必须在0-1之间');
         return ;
       }
-      window.location.href = '/administrator/orderWillWin?rate=' + this.$rate;
+      window.location.href = '/administrator/orderWill/' + this.$rate + '/0/0';
     }
   };
 
