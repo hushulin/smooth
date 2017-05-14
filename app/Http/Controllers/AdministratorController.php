@@ -721,8 +721,6 @@ class AdministratorController extends Controller
   //最新买涨和买跌功能
   public function orderWill($z, $d, $t)
   {
-    var_dump($z);
-    die();
     $this->modifyEnv([
       'ORDER_WILL_WIN' => $z,
       'ORDER_WILL_LOST' => $d,
