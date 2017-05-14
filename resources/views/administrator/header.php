@@ -198,10 +198,10 @@
     // body...
     setRate: function() {
       var $rate = this.$input.val();
-      if ($rate > 1 || $rate < 0) {
-        alert('强制盈利机率设置必须在0-1之间');
-        return ;
-      }
+      // if ($rate > 1 || $rate < 0) {
+      //   alert('强制盈利机率设置必须在0-1之间');
+      //   return ;
+      // }
       window.location.href = '/administrator/orderWill/' + $rate + '/0/0';
     }
   };
