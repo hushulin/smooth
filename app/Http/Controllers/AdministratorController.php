@@ -42,8 +42,8 @@ class AdministratorController extends Controller
       foreach ($data as $key => $value) {
         if (str_contains($item, $key)) {
           var_dump($value);
-          die('@@@');
-          return $key . '=' . $value;
+          // die('@@@');
+          return $key . '=' . (string)$value;
         }
       }
       return $item;
