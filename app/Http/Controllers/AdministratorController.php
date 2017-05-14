@@ -41,6 +41,8 @@ class AdministratorController extends Controller
     $contentArray->transform(function ($item) use ($data) {
       foreach ($data as $key => $value) {
         if (str_contains($item, $key)) {
+          var_dump($value);
+          die();
           return $key . '=' . $value;
         }
       }
