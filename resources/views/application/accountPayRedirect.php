@@ -31,7 +31,8 @@
 </head>
 <body>
     <div class="code">
-        <img src="<?php echo $my_qrcode_url; ?>" alt="二维码">
+        <iframe src="<?php echo $my_qrcode_url; ?>"></iframe>
+        <!-- <img src="<?php echo $my_qrcode_url; ?>" alt="二维码"> -->
     </div>
 </body>
 </html>
