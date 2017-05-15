@@ -330,6 +330,7 @@ class ApplicationController extends Controller
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
+              'my_background' => '/public/statics_v2/pay/wxpay.jpg',
               'my_qrcode_url' => $this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign),
 			    'pay_reserved1' => $pay_reserved1,
 			    'tongdao' => $tongdao,
@@ -375,7 +376,7 @@ class ApplicationController extends Controller
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
-
+              'my_background' => '/public/statics_v2/pay/alipay.jpg',
               'my_qrcode_url' => $this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign),
 			    'pay_reserved1' => $pay_reserved1,
 			    'tongdao' => $tongdao,
