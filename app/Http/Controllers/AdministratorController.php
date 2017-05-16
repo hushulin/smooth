@@ -41,7 +41,7 @@ class AdministratorController extends Controller
     $contentArray->transform(function ($item) use ($data) {
       foreach ($data as $key => $value) {
         if (str_contains($item, $key)) {
-          return $key . '=' . $value;
+          return $key . '=' . (string)$value;
         }
       }
       return $item;
@@ -719,7 +719,6 @@ class AdministratorController extends Controller
   //最新买涨和买跌功能
   public function orderWill($z, $d, $t)
   {
-    
     $this->modifyEnv([
       'ORDER_WILL_WIN' => $z,
       'ORDER_WILL_LOST' => $d,

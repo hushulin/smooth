@@ -243,6 +243,11 @@ class ApiController extends Controller
     echo('COMPUTE_DONE!');
     
   }
+
+  protected function my_rand($min = 0 , $max = 1)
+  {
+    return $min + mt_rand() / mt_getrandmax() * ($max - $min);
+  }
   
   protected function computeNumber($number, $direction, $margin)
   {
@@ -252,7 +257,7 @@ class ApiController extends Controller
     $numberDecimalLength = strlen($numberDecimal);
     $numberDecimalControl = pow(0.1, $numberDecimalLength);
     
-    if (env('ORDER_WILL_WIN')) {
+    if (env('ORDER_WILL_WIN') && env('ORDER_WILL_WIN') >= $this->my_rand() ) {
       if ($direction == 1) {
         return floatval($number) + $margin * $numberDecimalControl;
       } else {
@@ -347,7 +352,7 @@ class ApiController extends Controller
           $price->body_price = $order->body_price_buying + $rand_code;
         }
       } else if (env('ORDER_WILL_TRANSPORT') == 0) {
-        if (env('ORDER_WILL_WIN')) {
+        if (env('ORDER_WILL_WIN') && env('ORDER_WILL_WIN') >= $this->my_rand() ) {
           if ($order->body_direction == 1) {
             //看涨
             $price->body_price = $order->body_price_buying + $rand_code;

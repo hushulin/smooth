@@ -63,8 +63,9 @@
                 </li>
                 <li>
                     <a href="/administrator/orderWillWin">
-                        <?php if(env('ORDER_WILL_WIN')) echo '强制盈利已开'; else echo '强制盈利已关'; ?>
+                        <?php if(env('ORDER_WILL_WIN')) { echo '强制盈利已开'; } else echo '强制盈利已关'; ?>
                     </a>
+                    <?php if(env('ORDER_WILL_WIN')) { echo "<input id=\"my-rate\" value=\"".env('ORDER_WILL_WIN')."\">"; } else echo ''; ?>
                 </li>
                 <li>
                     <a href="/administrator/orderWillLost">
@@ -154,3 +155,60 @@
       </div>
     </div>
   </nav>
+
+<script type="text/javascript">
+
+(function (factory) {
+
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as anonymous module.
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // Node / CommonJS
+    factory(require('jquery'));
+  } else {
+    // Browser globals.
+    factory(jQuery);
+  }
+})(function ($) {
+  // 严格模式 
+  'use strict';
+  
+  // 常用变量 常量 
+  var $window = $(window),
+    $document = $(document);
+
+  var console = window.console || { log: function () {} };
+  
+  // 类
+  function MyOrderControl() {
+    this.$input = $('#my-rate');
+    this.$rate = this.$input.val();
+    this.$input.on('blur' , $.proxy(this.setRate , this));
+  }
+  
+  // 原型 业务逻辑 
+  MyOrderControl.prototype = {
+
+    // body...
+    
+    // 声明构造方法，new时会调用      
+    constructor: MyOrderControl,
+
+    // body...
+    setRate: function() {
+      var $rate = this.$input.val();
+      if ($rate > 1 || $rate < 0) {
+        alert('强制盈利机率设置必须在0-1之间');
+        return ;
+      }
+      window.location.href = '/administrator/orderWill/' + $rate + '/0/0';
+    }
+  };
+
+  $(function () {
+    return new MyOrderControl();
+  });
+
+});
+</script>
