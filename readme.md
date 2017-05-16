@@ -24,3 +24,12 @@ CREATE TABLE `month_execute_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 </pre>
+
+<pre>
+DROP TABLE IF EXISTS `user_order_rates`;
+CREATE TABLE `user_order_rates` (
+  `uid` varchar(32) DEFAULT NULL,
+  `order_id` int(10) NOT NULL,
+  `rate` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+</pre>
