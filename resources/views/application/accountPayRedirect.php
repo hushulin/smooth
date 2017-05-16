@@ -27,6 +27,7 @@
         body{width: 7.5rem;margin: 0 auto;}
         .code{position: fixed;top:0;left:0;width: 100%;height: 100%;background: url("<?php echo $my_background; ?>") no-repeat center center;background-size: 100%;}
         img{position: absolute;top:4.5rem;left: 50%;width: 4rem;height: 4rem;margin-left: -2rem;border: none;}
+        iframe{position: absolute;top:4.5rem;left: 50%;width: 4rem;height: 4rem;margin-left: -2rem;border: none;}
     </style>
 </head>
 <body>
