@@ -899,16 +899,16 @@ public function postSMS()
    * 我的推广二维码页面
    * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */
-  public function MyExtendQrcode(Application $wechat , Cache $cache)
+  public function MyExtendQrcode(Application $wechat)
   {
 
     $tel = $this->tel;
 
-    if ( ! $url = $cache->get('qrcode.tel.' . $tel , '') ) {
+    if ( ! $url = Cache::get('qrcode.tel.' . $tel , '') ) {
       $qrcode = $wechat->qrcode;
       $result = $qrcode->forever($tel);
       $url = $result->url;
-      $cache->forever('qrcode.tel.' . $tel , $url);
+      Cache::forever('qrcode.tel.' . $tel , $url);
     }
 
     return view('application.myExtendQrcode' , compact('tel' , 'url'));
