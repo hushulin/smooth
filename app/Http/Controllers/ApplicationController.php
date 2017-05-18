@@ -907,7 +907,8 @@ public function postSMS()
     if ( ! $url = Cache::get('qrcode.tel.' . $tel , '') ) {
       $qrcode = $wechat->qrcode;
       $result = $qrcode->forever($tel);
-      $url = $result->url;
+      // $url = $result->url;
+      $url = $qrcode->url($result->ticket);
       Cache::forever('qrcode.tel.' . $tel , $url);
     }
 
