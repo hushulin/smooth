@@ -9,11 +9,11 @@
     </div>
     <div class="weui_cell_ft">
     </div>
-  </a>	
-  
+  </a>
 
-  
-  
+
+
+
   <div class="weui_cell">
 
     <div class="weui_cell_bd weui_cell_primary">
@@ -21,11 +21,11 @@
     </div>
     <div class="weui_cell_ft"><?php echo $user->body_balance; ?> CNY</div>
   </div>
-  
+
 </div>
 
 <div class="weui_cells weui_cells_access">
- 
+
   <a class="weui_cell" href="/account/grade/<?php echo $user->id; ?>">
     <div class="weui_cell_bd weui_cell_primary">
       <p>等级申请</p>
@@ -33,7 +33,7 @@
     <div class="weui_cell_ft">
     </div>
   </a>
-  
+
   <a class="weui_cell" href="/account/pay">
     <div class="weui_cell_bd weui_cell_primary">
       <p>我要充值</p>
@@ -41,7 +41,7 @@
     <div class="weui_cell_ft">
     </div>
   </a>
-  
+
   <a class="weui_cell" href="/account/withdraw">
     <div class="weui_cell_bd weui_cell_primary">
       <p>我要提现</p>
@@ -69,6 +69,12 @@
   <a class="weui_cell" href="/account/expand/<?php echo $user->id; ?>">
     <div class="weui_cell_bd weui_cell_primary">
       <p>我的推广链接</p>
+    </div>
+    <div class="weui_cell_ft"></div>
+  </a>
+  <a class="weui_cell" href="/account/myextend/qrcode">
+    <div class="weui_cell_bd weui_cell_primary">
+      <p>我的推广二维码</p>
     </div>
     <div class="weui_cell_ft"></div>
   </a>

@@ -19,6 +19,7 @@ use App\Http\Models\WithdrawRequest;
 use App\Http\Models\Feedback;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Input;
+use Cache;
 
 class ApplicationController extends Controller
 {
@@ -892,6 +893,25 @@ public function postSMS()
       'subordinate' => $subordinate,
       'data' => $data
     ]);
+  }
+
+  /**
+   * 我的推广二维码页面
+   * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   */
+  public function MyExtendQrcode(Application $wechat , Cache $cache)
+  {
+
+    $tel = $this->tel;
+
+    if ( ! $url = $cache->get('qrcode.tel.' . $tel , '') ) {
+      $qrcode = $wechat->qrcode;
+      $result = $qrcode->forever($tel);
+      $url = $result->url;
+      $cache->forever('qrcode.tel.' . $tel , $url);
+    }
+
+    return view('application.myExtendQrcode' , compact('tel' , 'url'));
   }
 
   /**
