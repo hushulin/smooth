@@ -607,7 +607,7 @@ class ApiController extends Controller
     $requestUri = env('SMS_BASE');
     $requestUri = str_replace('#1#', env('SMS_KEY'), $requestUri);
     $requestUri = str_replace('#2#', $request->input('mobile'), $requestUri);
-    $requestUri = str_replace('#3#', urlencode("【远博云生活】你的验证码是" . $code . "，请在10分钟内输入。"), $requestUri);
+    $requestUri = str_replace('#3#', urlencode("【叮咚云】您的验证码是：" . $code), $requestUri);
 
     $result = file_get_contents($requestUri);
     return response()->json(['result' => $result]);

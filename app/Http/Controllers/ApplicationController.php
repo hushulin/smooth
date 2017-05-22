@@ -327,7 +327,7 @@ class ApplicationController extends Controller
             $parameters['pay_md5sign'] = $sign;
 
 			$pay_reserved1 = $payRequest->id; /*新增*/
-			$tongdao = 'WftWx';
+			$tongdao = 'JiuXiaoWxSm';
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
@@ -360,7 +360,7 @@ class ApplicationController extends Controller
                 'pay_orderid' => date('YmdHis'),
                 'pay_amount' => $payRequest->body_stake,
                 'pay_applydate' => date('Y-m-d H:i:s'),
-                'pay_bankcode' => 'alipay',
+                'pay_bankcode' => 'ALIPAY',
                 'pay_notifyurl' => env('PAYMENT_URL_NO'),
                 'pay_callbackurl' => env('PAYMENT_URL_RE'),
             );
@@ -373,7 +373,7 @@ class ApplicationController extends Controller
             $parameters['pay_md5sign'] = $sign;
 
 			$pay_reserved1 = $payRequest->id; /*新增*/
-			$tongdao = 'WftZfb';
+			$tongdao = 'JiuXiaoZfbSm';
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
@@ -668,7 +668,7 @@ public function postSMS()
     if ($type == 1) {
       $code = rand(pow(10, (6 - 1)), pow(10, 6) - 1);
       session(['code' => $code]);
-      $body = urlencode("【庆邦电商】你的验证码是" . $code . "，请在10分钟内输入。");
+      $body = urlencode("【叮咚云】您的验证码是：" . $code);
       $smsUrl = env('SMS_BASE'). env('SMS_KEY') . '&mobile='. $tel .'&content='. $body;
       $rel = explode(',', file_get_contents($smsUrl));
       $rel = explode(':',$rel[0]);
@@ -680,7 +680,7 @@ public function postSMS()
       } else {
         $code = rand(pow(10, (6 - 1)), pow(10, 6) - 1);
         session(['code' => $code]);
-      $body = urlencode("【庆邦电商】你的验证码是" . $code . "，请在10分钟内输入。");
+      $body = urlencode("【叮咚云】您的验证码是：" . $code);
       $smsUrl = env('SMS_BASE'). env('SMS_KEY') . '&mobile='. $tel .'&content='. $body;
       $rel = explode(',', file_get_contents($smsUrl));
       $rel = explode(':',$rel[0]);
