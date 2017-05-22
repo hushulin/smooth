@@ -24,6 +24,12 @@
             </div>
             <div class="weui_cell_ft"></div>
         </a>
+        <a class="weui_cell" href="/support/tips">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>新手指南</p>
+            </div>
+            <div class="weui_cell_ft"></div>
+        </a>
     </div>
 
 <?php include_once 'footer.php'; ?>

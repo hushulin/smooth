@@ -646,6 +646,16 @@ class ApplicationController extends Controller
   }
 
   /**
+   * 新手指南 新增的 2017年05月22日11:33:31
+   */
+  public function tips()
+  {
+    return view('application.tips' , [
+      'title' => '新手指南',
+    ]);
+  }
+
+  /**
    * 获取短信发送
    * @return string
    */

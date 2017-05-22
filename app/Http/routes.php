@@ -66,6 +66,7 @@ Route::group(['middleware' => ['web', 'admin.login']], function () {
   Route::get('/support/faq', 'ApplicationController@supportFaq');
   Route::get('/support/service', 'ApplicationController@supportService');
   Route::any('/support/feedback', 'ApplicationController@supportFeedback');
+  Route::any('/support/tips', 'ApplicationController@tips');
 
   Route::any('/account/updatePassword/{id}', 'ApplicationController@updatePassword'); //用户修改密码
   Route::any('/account/grade/{id}', 'ApplicationController@Grade');  //等级申请
