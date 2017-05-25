@@ -1038,18 +1038,18 @@ class AdministratorController extends Controller
 
             if ($v["grade"] == 1) {
               $v['bonus_amount'] = array_sum(array_map(function ($val) {
-                return $val['sum_body_stake'] * 0.02;
+                return $val['sum_body_stake'] * 0.03;
               }, $v["lists"]));
               self::encapsulation(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount'], 'time' => time(), 'remark' => '初级经济人获取直接推荐交易金额'));
 
             } elseif ($v["grade"] == 2) {
               $v['bonus_amount'] = array_sum(array_map(function ($val) {
-                return $val['sum_body_stake'] * 0.05;
+                return $val['sum_body_stake'] * 0.04;
               }, $v["lists"]));
               self::encapsulation(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount'], 'time' => time(), 'remark' => '高级经纪人获取直接推荐交易金额'));
               $v['bonus_amount2'] = array_sum(array_map(function ($val) {
                 if ($val['grade'] == 1) {
-                  return $val['sum_body_stake'] * 0.02;
+                  return $val['sum_body_stake'] * 0.03;
                 } else {
                   return false;
                 }

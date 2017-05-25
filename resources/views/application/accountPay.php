@@ -28,8 +28,10 @@
                value=''>
         <div class="input-group-addon">元</div>
       </div>
-    </div>    
+    </div>
+    <!--
     <button id="buttonc" type='button' style='border:1px solid #5cb85c;' class="btn btn-success">中云微信支付</button>
+    -->
     <button id="buttona" type='button' style='border:1px solid #5cb85c;' class="btn btn-success">中云支付宝支付</button>
 
     <a href="/account/rechargeRecord">
@@ -93,9 +95,9 @@
     //提交
 
 
-    
-    
-    
+
+
+
             buttonc.onclick = function () {
       var msg = $('#msg').val();
       if (value == null || value == undefined || value == '') {
@@ -118,7 +120,7 @@
 
       }
     }
-    
+
                     buttona.onclick = function () {
       var msg = $('#msg').val();
       if (value == null || value == undefined || value == '') {
@@ -138,10 +140,10 @@
         window.location.href = '/account/zypayb/' + price;
      }
     }
-    
- 
-    
-    
+
+
+
+
   }
 </script>
 </body>
