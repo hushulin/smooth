@@ -72,12 +72,14 @@
     </div>
     <div class="weui_cell_ft"></div>
   </a>
+  <!--
   <a class="weui_cell" href="/account/myextend/qrcode">
     <div class="weui_cell_bd weui_cell_primary">
       <p>我的推广二维码</p>
     </div>
     <div class="weui_cell_ft"></div>
   </a>
+  -->
     <a class="weui_cell" href="/appdown">
     <div class="weui_cell_bd weui_cell_primary">
       <p>APP下载</p>

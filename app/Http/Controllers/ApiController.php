@@ -21,7 +21,7 @@ use App\Http\Models\PayRequest;
 
 class ApiController extends Controller
 {
-  
+
   protected function insertLineItem($period, $object, $objectPrice, $objectPriceTime)
   {
     if (Line::where('id_object', $object->id)->where('body_period', $period)->where('created_at', '>=', date('Y-m-d H:i:s', time() - $period))->count() == 0) {
@@ -64,7 +64,7 @@ class ApiController extends Controller
       }
     }
   }
-  
+
   protected function insertLine($object, $objectPrice, $objectPriceTime)
   {
     if ($object->body_status == 1) {
@@ -77,9 +77,9 @@ class ApiController extends Controller
       $this->insertLineItem(604800, $object, $objectPrice, $objectPriceTime);
       $this->insertLineItem(2592000, $object, $objectPrice, $objectPriceTime);
     }
-    
+
   }
-  
+
   protected function insertPrice($object, $objectPrice, $objectPriceTime, $objectPriceMin, $objectPriceMax, $objectPriceInterval)
   {
     if (Price::where('id_object', $object->id)->where('body_price_time', date('Y-m-d H:i:s', time()))->count() == 0) {
@@ -90,28 +90,28 @@ class ApiController extends Controller
             $object->body_status = 0;
           }
         } else {
-          
+
           $object->body_price_repeat = 0;
           $object->body_status = 1;
-          
+
           $price = new Price;
           $price->id_object = $object->id;
           $price->body_price = sprintf('%.' . $object->body_price_decimal . 'f', $objectPrice);
           $price->body_price_time = $objectPriceTime;
           $price->save();
-          
+
           $object->body_price_previous = $object->body_price;
           $object->body_price = $price->body_price;
           $object->body_price_min = $objectPriceMin;
           $object->body_price_max = $objectPriceMax;
           $object->body_price_interval = $objectPriceInterval;
           $object->save();
-          
+
           Price::where('id_object', $object->id)->where('body_price_time', '<', date('Y-m-d H:i:s', strtotime($price->body_price_time) - 6400))->delete();
-          
+
         }
-        
-        
+
+
       }
     } else {
       $price = Price::where('id_object', $object->id)->where('body_price_time', date('Y-m-d H:i:s', time()))->first();
@@ -120,12 +120,12 @@ class ApiController extends Controller
       $object->save();
     }
     $this->insertLine($object, $objectPrice, $objectPriceTime);
-    
+
   }
-  
+
   public function fetch()
   {
-    
+
     $requestResults = file_get_contents('http://market.forex.com.cn/zhongfuMarketIndex/findAllPriceAjax.do?' . mt_rand(100000000, 999999999));
     //Cache::forget(md5($requestResults));
     if (!Cache::has(md5($requestResults))) {
@@ -137,7 +137,7 @@ class ApiController extends Controller
         $this->insertPrice($item, ($requestResults[$item->body_tag_forex]['sellPrice']), date('Y-m-d H:i:s', time()), ($requestResults[$item->body_tag_forex]['sellPrice']) ,($requestResults[$item->body_tag_forex]['sellPrice']), 0);
       }
     }
-    
+
     /*
     $requestResults = json_decode(file_get_contents('http://market.forex.com.cn/zhongfuMarketIndex/ajaxTable.do?' . mt_rand(100000000, 999999999)), TRUE);
     $responseLists = $requestResults['list'];
@@ -150,50 +150,50 @@ class ApiController extends Controller
     //die(print_r($responseArray['GBPJPY']));
 
     */
-    
-    
+
+
     echo('FETCH DONE!');
-    
+
   }
       public function btfetch()
   {
-    
 
-  
+
+
   $requestString = 'http://api.huobi.com/staticmarket/ticker_btc_json.js';
   $requestResults = explode(',', file_get_contents($requestString));
-  
+
   $btjia = explode(':',$requestResults[7]);
   $btjia1 = $btjia[1];
   $btsjs =  (mt_rand(55,99)/100);
   $btjia1 = ($btjia1/7.67)+$btsjs;
-  
+
   $objects = Object::where('id','=',6 )->get();
    foreach ($objects as $object) {
   $this->insertPrice($object, $btjia1, date('Y-m-d H:i:s', time()), $btjia1, $btjia1, 0);
 }
-        
+
 				echo('BTFETCH DONE!');
 				echo $btjia1;
   }
-  
-  
-  
-  
+
+
+
+
   public function compute()
   {
-    
+
     $orders = Order::where('striked_at', '0000-00-00 00:00:00')->get();
     foreach ($orders as $order) {
-      
+
       $order_striked_time = strtotime($order->created_at) + $order->body_time;
       if ($order_striked_time <= time()) {
-        
+
         if ($order->body_is_controlled == 0) {
           $object_latestPrice = Price::where('id_object', $order->id_object)->where('body_price_time', '<=', date('Y-m-d H:i:s', $order_striked_time))->orderBy('created_at', 'desc')->first();
           $order->body_price_striked = $object_latestPrice->body_price;
         }
-        
+
         $order->striked_at = date('Y-m-d H:i:s', time());
         if (floatval($order->body_price_buying) == floatval($order->body_price_striked)) {
           $order->body_is_win = 0;
@@ -206,14 +206,14 @@ class ApiController extends Controller
           $order->body_is_draw = 0;
         }
         $order->save();
-        
+
         $user = User::where('id_wechat', $order->id_user)->first();
         if ($order->body_is_win == 1) {
-          
+
           $user->body_balance = $user->body_balance + $order->body_stake + $order->body_bonus;
           $user->body_bonus = $user->body_bonus + $order->body_bonus;
           $user->save();
-          
+
           $record = new Record;
           $record->id_user = $user->id_wechat;
           $record->id_order = $order->id;
@@ -221,12 +221,12 @@ class ApiController extends Controller
           $record->body_direction = 1;
           $record->body_stake = $order->body_stake + $order->body_bonus;
           $record->save();
-          
+
         } else if ($order->body_is_draw == 1) {
-          
+
           $user->body_balance = $user->body_balance + $order->body_stake;
           $user->save();
-          
+
           $record = new Record;
           $record->id_user = $user->id_wechat;
           $record->id_order = $order->id;
@@ -234,29 +234,29 @@ class ApiController extends Controller
           $record->body_direction = 1;
           $record->body_stake = $order->body_stake;
           $record->save();
-          
+
         }
-        
+
       }
     }
-    
+
     echo('COMPUTE_DONE!');
-    
+
   }
 
   protected function my_rand($min = 0 , $max = 1)
   {
     return $min + mt_rand() / mt_getrandmax() * ($max - $min);
   }
-  
+
   protected function computeNumber($number, $direction, $margin)
   {
-    
+
     $numberExplode = explode('.', $number);
     $numberDecimal = end($numberExplode);
     $numberDecimalLength = strlen($numberDecimal);
     $numberDecimalControl = pow(0.1, $numberDecimalLength);
-    
+
     if (env('ORDER_WILL_WIN') && env('ORDER_WILL_WIN') >= $this->my_rand() ) {
       if ($direction == 1) {
         return floatval($number) + $margin * $numberDecimalControl;
@@ -270,9 +270,9 @@ class ApiController extends Controller
         return floatval($number) + $margin * $numberDecimalControl;
       }
     }
-    
+
   }
-  
+
   protected function computeRate($id)
   {
     $orders_count = Order::where('id_user', $id)->count();
@@ -281,30 +281,30 @@ class ApiController extends Controller
       return ($orders_is_win / $orders_count) * 100;
     } else return 0;
   }
-  
+
   protected function computePriceItem($time, $order, $object, $margin)
   {
-    
+
     $price = Price::firstOrNew(array(
       'id_object' => $order->id_object,
       'body_price_time' => date('Y-m-d H:i:s', $time),
       'created_at' => date('Y-m-d H:i:s', $time)
     ));
-    
+
     if ($order->body_stake > $price->body_rank) {
       $price->body_price = $this->computeNumber(sprintf('%.' . $object->body_price_decimal . 'f', $order->body_price_buying), $order->body_direction, $margin);
       $price->body_rank = $order->body_stake;
       $price->save();
     }
     return $price;
-    
+
   }
-  
+
   protected function computePrice($user, $order, $object)
   {
-    
+
     $rate = $this->computeRate($user->id);
-    
+
     if (floatval($order->body_stake) < 100) {
       $rate = 0;
     } else {
@@ -312,13 +312,13 @@ class ApiController extends Controller
       if (floatval($order->body_stake) >= 500) $rate = $rate + 10;
       if (floatval($order->body_stake) >= 1000) $rate = $rate + 15;
     }
-    
+
     if (env('ORDER_WILL_LOST') || env('ORDER_WILL_WIN') || env('ORDER_WILL_TRANSPORT')) {
       $rate = 100;
     }
-    
+
     if (rand(0, 100) <= $rate) {
-      
+
       $order_striked_time = strtotime($order->created_at) + $order->body_time;
       $price = $this->computePriceItem($order_striked_time, $order, $object, mt_rand(1, 3));
       $this->computePriceItem($order_striked_time - 4, $order, $object, 4);
@@ -374,25 +374,25 @@ class ApiController extends Controller
       $order->body_is_controlled = 1;
       $order->save();
     }
-    
+
   }
-  
+
   protected function computeNetwork($user, $order)
   {
-    
+
     $introducerIndex = 0;
     while ($user->id_introducer != 0) {
       $introducerIndex++;
       $introducer = User::where('id_wechat', $user->id_introducer)->first();
       $introducer->body_transactions_network = $introducer->body_transactions_network + $order->body_stake;
-      
+
       if ($introducerIndex <= 3) {
-        
+
         $bonus = floatval($order->body_stake * floatval(env("AGENT_$introducerIndex")));
         if ($bonus < 0.01) $bonus = 0.01;
-        
+
         $introducer->body_balance = floatval($introducer->body_balance) + $bonus;
-        
+
         $record = new Record;
         $record->id_user = $introducer->id_wechat;
         $record->id_refer = $user->id_wechat;
@@ -400,28 +400,28 @@ class ApiController extends Controller
         $record->body_direction = 1;
         $record->body_stake = $bonus;
         $record->save();
-        
+
       }
-      
+
       $introducer->save();
       return $introducer;
     }
-    
+
   }
-  
+
   public function automate()
   {
-    
+
     $this->fetch();
 	$this->btfetch();
     $this->compute();
-    
+
     return response()->json([
       'result' => 'OK'
     ]);
-    
+
   }
-  
+
   public function objects()
   {
     $result = array(
@@ -436,19 +436,19 @@ class ApiController extends Controller
     }
     return response()->json($result);
   }
-  
+
   public function objectsDetail(Request $request, Response $response, $id, $period)
   {
-    
+
     $object = Object::find($id);
     $lines = Line::where('id_object', $object->id)->where('body_period', $period)->orderBy('id', 'desc')->get();
-    
+
     if ($object->body_status == 1) {
       $object['status'] = TRUE;
     } else {
       $object['status'] = FALSE;
     }
-    
+
     $result = array(
       'timestamp' => time(),
       'period' => $period,
@@ -456,48 +456,48 @@ class ApiController extends Controller
       'lines' => $lines->toArray()
     );
     return response()->json($result);
-    
+
   }
-  
+
   public function objectsDetailUpdate(Request $request, Response $response, $id, $period)
   {
-    
+
     $object = Object::find($id);
     $lines = Line::where('id_object', $object->id)->where('body_period', $period)->orderBy('id', 'desc')->first();
-    
+
     if ($object->body_status == 1) {
       $object['status'] = TRUE;
     } else {
       $object['status'] = FALSE;
     }
-    
+
     $result = array(
       'timestamp' => time(),
       'period' => $period,
       'object' => $object,
       'lines' => $lines->toArray()
     );
-    
+
     return response()->json($result);
-    
+
   }
-  
+
   public function ordersDetail(Request $request, Response $response, $id)
   {
-    
+
     $item = Order::find($id);
     $result = array(
       'timestamp' => time(),
       'item' => $item
     );
-    
+
     return response()->json($result);
-    
+
   }
-  
+
   public function update(Request $request, Response $response)
   {
-    
+
     $result = array(
       'user' => NULL,
       'timestamp' => time(),
@@ -505,17 +505,17 @@ class ApiController extends Controller
       'time' => date('H:i:s'),
       'objects' => array()
     );
-    
+
     if ($request->input('object', null)) {
       $objects = Object::where('id', $request->input('object'))->get();
     } else {
       $objects = Object::orderBy('body_rank', 'desc')->get();
     }
-    
+
     foreach ($objects as $object) {
       $result_item = $object->toArray();
       $result_item_latestPrice = Price::where('id_object', $object->id)->orderBy('created_at', 'desc')->first();
-      
+
       if ($request->input('mode') == 'fs') {
         $cacheTime = time();
         if (!Cache::has('prices_' . $object->id . '_' . $cacheTime)) {
@@ -523,7 +523,7 @@ class ApiController extends Controller
         }
         $result_item['prices'] = Cache::get('prices_' . $object->id . '_' . $cacheTime);
       } else {
-        
+
         if ($object->body_tag == 'sh000010'
           || $object->body_tag == 'sh000300'
         ) {
@@ -541,7 +541,7 @@ class ApiController extends Controller
         } else {
           $requestString = 'http://vip.stock.finance.sina.com.cn/forex/api/jsonp.php/DATA/NewForexService.getMinKline?symbol=#CODE#&scale=5&datalen=30';
         }
-        
+
         $requestString = str_replace('#CODE#', $object->body_tag, $requestString);
         $requestResult = explode('DATA(', file_get_contents($requestString));
         $requestResult = str_replace(')', '', $requestResult[1]);
@@ -560,60 +560,60 @@ class ApiController extends Controller
         $requestResult = str_replace(';', '', $requestResult);
         $result_item['prices'] = json_decode($requestResult, TRUE);
       }
-      
+
       if ($object->body_status == 1) {
         $result_item['status'] = TRUE;
       } else {
         $result_item['status'] = FALSE;
       }
-      
+
       if ($user = session('tel')) {
         $user = User::where('id_wechat', $user)->first();
         $result_item['orders'] = Order::where('id_object', $object->id)->where('id_user', $user->id)->where('striked_at', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->get()->toArray();
       }
-      
+
       $result['objects'][] = $result_item;
     }
-    
+
     if ($user = session('tel')) {
-      
+
       $user = User::where('id_wechat', $user)->first();
-      
+
       $latestStrikedOrder = Order::where('id_object', $object->id)->where('id_user', $user->id)->where('striked_at', '<>', '0000-00-00 00:00:00')->orderBy('created_at', 'desc')->first();
       if ($latestStrikedOrder) $latestStrikedOrder = $latestStrikedOrder->toArray();
       else $latestStrikedOrder = NULL;
-      
+
       $result['user'] = array(
         'balance' => floatval($user->body_balance),
         'latestStrikedOrder' => $latestStrikedOrder
       );
-      
+
     }
-    
+
     return response()->json($result);
-    
+
   }
-  
+
   public function captchaCreate(Request $request, Response $response)
   {
-    
+
     $code = mt_rand(100000, 999999);
-    
+
     $captcha = new Captcha;
     $captcha->body_mobile = $request->input('mobile');
     $captcha->body_code = $code;
     $captcha->save();
-    
+
     $requestUri = env('SMS_BASE');
     $requestUri = str_replace('#1#', env('SMS_KEY'), $requestUri);
     $requestUri = str_replace('#2#', $request->input('mobile'), $requestUri);
-    $requestUri = str_replace('#3#', urlencode("【恒信】你的验证码是" . $code . "，请在10分钟内输入。"), $requestUri);
-    
+    $requestUri = str_replace('#3#', urlencode("【叮咚云】您的验证码是：" . $code), $requestUri);
+
     $result = file_get_contents($requestUri);
     return response()->json(['result' => $result]);
-    
+
   }
-  
+
   public function orderCreate(Request $request, Response $response)
   {
     if (!session('tel')) {
@@ -621,7 +621,7 @@ class ApiController extends Controller
         'error' => '身份驗證失敗，請重新打開頁面再試'
       ]);
     }
-    
+
     $carbon = Carbon::now();
     if ($carbon->hour < 6 && $carbon->hour > 2) {
       return response()->json([
@@ -637,7 +637,7 @@ class ApiController extends Controller
         'error' => '參數提交不全，請重新打開頁面再試'
       ]);
     }
-    
+
     if ($request->input('stake') < 9
       || $request->input('stake') > 99999
     ) {
@@ -645,7 +645,7 @@ class ApiController extends Controller
         'error' => '交易量输入错误，10-99999之间'
       ]);
     }
-    
+
     if ($request->input('time') != 60
       && $request->input('time') != 120
       && $request->input('time') != 180
@@ -659,7 +659,7 @@ class ApiController extends Controller
         'error' => '參數提交錯誤，請重新打開頁面再試'
       ]);
     }
-    
+
     if ($request->input('direction') != 1
       && $request->input('direction') != 0
     ) {
@@ -667,53 +667,53 @@ class ApiController extends Controller
         'error' => '參數提交錯誤，請重新打開頁面再試'
       ]);
     }
-    
+
     if (!$object = Object::find($request->input('object'))) {
       return response()->json([
         'error' => '參數提交錯誤，請重新打開頁面再試'
       ]);
     }
-    
+
     if ($object->is_disabled > 0) {
       return response()->json([
         'error' => '參數提交錯誤，請重新打開頁面再試'
       ]);
     }
-    
+
     if ((strtotime($object->updated_at) + 180) < time()) {
       return response()->json([
         'error' => '休市期間無法進行交易'
       ]);
     }
-    
+
     if ($object->body_status == 0) {
       return response()->json([
         'error' => '休市期間無法進行交易'
       ]);
     }
-    
+
     if (!$user = User::where('id_wechat', session('tel'))->first()) {
       return response()->json([
         'error' => '身份驗證失敗，請重新打開頁面再試'
       ]);
     }
-    
+
     if (floatval($user->body_balance) < $request->input('stake')) {
       return response()->json([
         'error' => '帳戶可用餘額不足，請先充值後再交易'
       ]);
     }
-    
+
     if ($user->is_disabled > 0) {
       return response()->json([
         'error' => '帳戶已被封禁，无法进行交易'
       ]);
     }
-    
+
     $user->body_balance = floatval($user->body_balance) - $request->input('stake');
     $user->body_transactions = floatval($user->body_transactions) + $request->input('stake');
     $user->save();
-    
+
     if ($user->body_balance < 0) {
       return response()->json([
         'error' => '余额不足'
@@ -732,7 +732,7 @@ class ApiController extends Controller
       }
       $order->times = time();
       $order->save();
-      
+
       $record = new Record;
       $record->id_user = $user->id_wechat;
       $record->id_order = $order->id;
@@ -750,11 +750,11 @@ class ApiController extends Controller
       if (env('ORDER_CONTROL')) {
         $this->computePrice($user, $order, $object);
       }
-      
+
     }
-    
+
     $result = $order->toArray();
-    
+
     $order_striked_time = strtotime($order->created_at) + $order->body_time;
     $result['distance'] = intval($order->body_time);
     $result['distance_year'] = date('Y', $order_striked_time);
@@ -763,33 +763,33 @@ class ApiController extends Controller
     $result['distance_hour'] = date('H', $order_striked_time);
     $result['distance_minute'] = date('i', $order_striked_time);
     $result['distance_second'] = date('s', $order_striked_time) + 1;
-    
+
     return response()->json([
       'result' => $result
     ]);
-    
-    
+
+
   }
-  
+
   public function payRequestUpdate(Request $request, Response $response, $id)
   {
-    
+
     if (!$payRequest = PayRequest::find($id)) {
       return response()->json([
         'result' => 'FAIL'
       ]);
     }
-    
+
     if ($payRequest->processed_at == '0000-00-00 00:00:00') {
       return response()->json([
         'result' => 'FAIL'
       ]);
     }
-    
+
     return response()->json([
       'result' => 'OK'
     ]);
-    
+
   }
-  
+
 }
