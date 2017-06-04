@@ -61,6 +61,7 @@
         <span>高级经纪人MIB</span>
         <p><?php echo $data['two'] == null ? '0' : $data['two']; ?>人</p>
       </a>
+      <!--
       <a href="javascript:;" class="weui_btn weui_btn_default">
         <span>白金经纪人PIB</span>
         <p><?php echo $data['three'] == null ? '0' : $data['three']; ?>人</p>
@@ -69,6 +70,7 @@
         <span>星级白金经纪人</span>
         <p><?php echo $data['four'] == null ? '0' : $data['four']; ?>人</p>
       </a>
+      -->
     </td>
   </tr>
   <tr>

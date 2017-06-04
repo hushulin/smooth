@@ -19,12 +19,13 @@ use App\Http\Models\WithdrawRequest;
 use App\Http\Models\Feedback;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Input;
+use Cache;
 
 class ApplicationController extends Controller
 {
   public $tel;
   public $code;
-  
+
    public function __construct()
   {
     $this->tel = session('tel');
@@ -58,10 +59,10 @@ class ApplicationController extends Controller
     ]);
 
   }
-  
+
   public function objectsDetail($id, $period)
   {
-    
+
     $user = User::where('id_wechat', $this->tel)->first();
     if ($user->is_disabled > 0) return $this->denialUser();
     $object = Object::find($id);
@@ -73,10 +74,10 @@ class ApplicationController extends Controller
       'period' => $period
     ]);
   }
-  
+
   public function ordersHold()
   {
-    
+
     $user = session('wechat.oauth_user');
     $user = User::where('id_wechat', $this->tel)->first();
     if ($user->is_disabled > 0) return $this->denialUser();
@@ -87,9 +88,9 @@ class ApplicationController extends Controller
       'user' => $user,
       'orders' => $orders
     ]);
-    
+
   }
-  
+
   public function ordersHistory()
   {
     $user = User::where('id_wechat', $this->tel)->first();
@@ -102,48 +103,48 @@ class ApplicationController extends Controller
       'orders' => $orders
     ]);
   }
-  
+
   public function ordersDetail($id)
   {
-    
+
     // $user = session('wechat.oauth_user');
     $user = User::where('id_wechat', $this->tel)->first();
-    
+
     if ($user->is_disabled > 0) return $this->denialUser();
-    
+
     $item = Order::find($id);
-    
+
     return view('apps.ordersDetail', [
       'navigator' => 'ordersHistory',
       'user' => $user,
       'item' => $item
     ]);
-    
+
   }
-  
+
   public function account()
   {
     $user = User::where('id_wechat', $this->tel)->first();
-    
+
     if ($user->is_disabled > 0) return $this->denialUser();
-    
+
     $count_refers = User::where('id_introducer', $this->tel)->count();
-    
+
     $count_bonus = 0;
     $records = Record::where('id_user', $this->tel)->where('id_refer', '>', 0)->get();
     foreach ($records as $record) {
       $count_bonus = $count_bonus + $record->body_stake;
     }
-    
+
     return view('application.account', [
       'title' => '会员中心',
       'user' => $user,
       'count_refers' => $count_refers,
       'count_bonus' => $count_bonus
     ]);
-    
+
   }
-  
+
   public function accountBind(Request $request)
   {
     if ($request->isMethod('post')) {
@@ -183,7 +184,7 @@ class ApplicationController extends Controller
         ]);
       }
 
-      
+
     }
      else {
       $id_introducer = User::whereId($request->get('tid'))->first();
@@ -198,9 +199,9 @@ class ApplicationController extends Controller
         ]);
       }
     }
-    
+
   }
-  
+
   /**
    * 用户充值中心
    * @param Request $request
@@ -218,14 +219,14 @@ class ApplicationController extends Controller
       'tel' => $tel
     ]);
   }
-  
+
   public function accountPayStaff(Application $wechat)
   {
     return view('application.accountPayStaff', [
       'title' => '人工充值'
     ]);
   }
-  
+
   /**
    * 提现记录
    * @param Application $wechat
@@ -234,35 +235,35 @@ class ApplicationController extends Controller
   public function accountWithdrawRecords()
   {
     $user = User::where('id_wechat', $this->tel)->first();
-    
+
     if ($user->is_disabled > 0) return $this->denialUser();
-    
+
     $withdrawRequests = WithdrawRequest::where('id_user', $this->tel)->orderBy('created_at', 'desc')->get();
-    
+
     return view('application.accountWithdrawRecords', [
       'title' => '提现记录',
       'withdrawRequests' => $withdrawRequests
     ]);
-    
+
   }
-  
+
      public function Wechatpay($price)
   {
 
-									
+
 									require_once  '../wxpay/WxPay.Config.php';
 									require_once  '../wxpay/WxPay.Data.php';
 									require_once  '../wxpay/WxPay.NativePay.php';
 									require_once  '../wxpay/WxPay.Api.php';
-									
+
 									$tijiao='http://' . $_SERVER['SERVER_NAME'] . '/wxpay/notify.php';
  									$notify = new \NativePay();
-				
+
 									$money      = $price*100;//自己刚才输入的金额一
-											
+
                   $user = User::where('id_wechat', $this->tel)->first();
-              			  
-				
+
+
 									$input = new \WxPayUnifiedOrder();
 									$input->SetBody("环球商品汇");
 									$input->SetAttach($user->id_wechat);
@@ -275,7 +276,7 @@ class ApplicationController extends Controller
 									$input->SetTrade_type("NATIVE");
 									$input->SetProduct_id("123456789");
 									$result = $notify->GetPayUrl($input);
-				
+
 									if($result['return_code'] == 'SUCCESS'){
                  //这个if里面的就是自己定义的内容，比如生成二维码之后你要插入一条数据进入数据库之类  上面组装是必须要有的 下面这个是自己自定义的
 
@@ -283,22 +284,22 @@ class ApplicationController extends Controller
 											$url = $result["code_url"];
 											return view("application.WxPayDir",['url'=>$url]);
 										}
-										else{	
+										else{
 
-											
+
 											return view('application.WxPayerror', ['result'=>$result]);
 												}//微信支付结尾
-  
-  
+
+
 }
-  
+
 
 
 
      public function zypay($price)
      {
 
-            
+
             $user = User::where('id_wechat', $this->tel)->first();
             $payRequest = new PayRequest;
             $payRequest->id_user = $user->id_wechat;
@@ -313,7 +314,8 @@ class ApplicationController extends Controller
                 'pay_orderid' => date('YmdHis'),
                 'pay_amount' => $payRequest->body_stake,
                 'pay_applydate' => date('Y-m-d H:i:s'),
-                'pay_bankcode' => 'WXZF',
+                // 'pay_bankcode' => 'WXZF',
+                'pay_bankcode' => 'SPDB',
                 'pay_notifyurl' => env('PAYMENT_URL_NO'),
                 'pay_callbackurl' => env('PAYMENT_URL_RE'),
             );
@@ -324,12 +326,14 @@ class ApplicationController extends Controller
             }
             $sign = strtoupper(md5($parameterForSign . 'key=' . env('PAYMENT_KEY')));
             $parameters['pay_md5sign'] = $sign;
-            
+
 			$pay_reserved1 = $payRequest->id; /*新增*/
-			$tongdao = 'WftWx';
+			$tongdao = 'Gopaywap'; // Gopaywap JiuXiaoWxSm
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
+              'my_background' => '/public/statics_v2/pay/wxpay.jpg',
+              'my_qrcode_url' => $this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign),
 			    'pay_reserved1' => $pay_reserved1,
 			    'tongdao' => $tongdao,
                 'requestURL' => $requestURL,
@@ -342,7 +346,7 @@ class ApplicationController extends Controller
      public function zypayb($price)
      {
 
-            
+
             $user = User::where('id_wechat', $this->tel)->first();
             $payRequest = new PayRequest;
             $payRequest->id_user = $user->id_wechat;
@@ -357,7 +361,7 @@ class ApplicationController extends Controller
                 'pay_orderid' => date('YmdHis'),
                 'pay_amount' => $payRequest->body_stake,
                 'pay_applydate' => date('Y-m-d H:i:s'),
-                'pay_bankcode' => 'alipay',
+                'pay_bankcode' => 'ALIPAY',
                 'pay_notifyurl' => env('PAYMENT_URL_NO'),
                 'pay_callbackurl' => env('PAYMENT_URL_RE'),
             );
@@ -368,19 +372,21 @@ class ApplicationController extends Controller
             }
             $sign = strtoupper(md5($parameterForSign . 'key=' . env('PAYMENT_KEY')));
             $parameters['pay_md5sign'] = $sign;
-            
+
 			$pay_reserved1 = $payRequest->id; /*新增*/
-			$tongdao = 'WftZfb';
+			$tongdao = 'JiuXiaoZfbSm';
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
+              'my_background' => '/public/statics_v2/pay/alipay.jpg',
+              'my_qrcode_url' => $this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign),
 			    'pay_reserved1' => $pay_reserved1,
 			    'tongdao' => $tongdao,
                 'requestURL' => $requestURL,
                 'parameters' => $parameters,
                 'sign' => $sign
             ]);
-            
+
 
 }
 
@@ -390,20 +396,27 @@ class ApplicationController extends Controller
     return view('application.xftali', [
       'title' => '个人支付宝充值',
     ]);
-            
+
 
 }
 
 
 
+  public function getQrcode($requestURL , $data , $pay_reserved1 , $tongdao , $sign)
+  {
+    $data['pay_reserved1'] = $pay_reserved1;
+    $data['tongdao'] = $tongdao;
+    $data['sign'] = $sign;
+    $queryString = http_build_query($data);
+    return $requestURL . '?' . $queryString;
+  }
 
 
 
 
 
 
-  
-  
+
   /**
    * 提现页面
    * @param Request $request
@@ -413,11 +426,11 @@ class ApplicationController extends Controller
   public function accountWithdraw(Request $request, Application $wechat)
   {
     $user = User::where('id_wechat', $this->tel)->first();
-    
+
     if ($user->is_disabled > 0) return $this->denialUser();
-    
+
     if ($request->isMethod('post')) {
-      
+
       if (!$request->input('name', null)
         || !$request->input('number', null)
         || !$request->input('bank', null)
@@ -431,7 +444,7 @@ class ApplicationController extends Controller
           'content' => '请将表单填写完整，谢谢'
         ]);
       }
-      
+
       if ($request->input('codes') != $this->code) {
         return view('application.info', [
           'title' => '绑定失败',
@@ -439,7 +452,7 @@ class ApplicationController extends Controller
           'content' => '您填写的验证码不正确'
         ]);
       }
-      
+
       if (intval($request->input('stake', 0)) < 100) {
         return view('application.info', [
           'title' => '提現失敗',
@@ -447,7 +460,7 @@ class ApplicationController extends Controller
           'content' => '單次提現金額不得低於 100 元'
         ]);
       }
-      
+
       if (intval($request->input('stake', 0)) > intval($user->body_balance)) {
         return view('application.info', [
           'title' => '提現失敗',
@@ -455,7 +468,7 @@ class ApplicationController extends Controller
           'content' => '您當前的帳戶餘額不足'
         ]);
       }
-      
+
       if (intval($request->input('stake', 0)) % 100 != 0) {
         return view('application.info', [
           'title' => '提現失敗',
@@ -463,7 +476,7 @@ class ApplicationController extends Controller
           'content' => '提现金额必须为 100 元的倍数'
         ]);
       }
-      
+
       $orderSum = Order::where('id_user', $this->tel)->sum('body_stake');
       if (intval($orderSum) < 300) {
         return view('application.info', [
@@ -472,12 +485,12 @@ class ApplicationController extends Controller
           'content' => '为避免恶意透支，累积交易金额超过 300 元即可提现'
         ]);
       }
-      
+
       DB::beginTransaction();
-      
+
       $user->body_balance = $user->body_balance - $request->input('stake');
       $user->save();
-      
+
       if ($user->body_balance < 0) {
         DB::rollback();
       } else {
@@ -489,7 +502,7 @@ class ApplicationController extends Controller
         $withdrawRequest->body_deposit = $request->input('deposit');
         $withdrawRequest->body_number = $request->input('number');
         $withdrawRequest->save();
-        
+
         $record = new Record;
         $record->id_user = $this->tel;
         $record->id_withdrawRequest = $withdrawRequest->id;
@@ -498,108 +511,108 @@ class ApplicationController extends Controller
         $record->body_stake = $withdrawRequest->body_stake;
         $record->save();
       }
-      
+
       DB::commit();
-      
+
       return view('application.info', [
         'title' => '申请成功',
         'icon' => 'success',
         'content' => '理我们已经收到您的提现申请，将在24小时内处理'
       ]);
-      
+
     } else {
       return view('application.accountWithdraw', [
         'title' => '我要提现',
         'user' => $user
       ]);
     }
-    
+
   }
-  
+
   public function accountRecords(Application $wechat)
   {
-    
+
     $user = session('wechat.oauth_user');
     $user = User::where('id_wechat', $this->tel)->first();
-    
+
     if ($user->is_disabled > 0) return $this->denialUser();
-    
+
     $records = Record::orderBy('created_at', 'desc')->where('id_user', $this->tel)->paginate(20);
-    
+
     return view('application.accountRecords', [
       'title' => '资金记录',
       'records' => $records
     ]);
-    
+
   }
-  
+
   public function accountOrders(Application $wechat)
   {
-    
+
     $user = session('wechat.oauth_user');
     $user = User::where('id_wechat', $this->tel)->first();
-    
+
     if ($user->is_disabled > 0) return $this->denialUser();
-    
+
     $orders = Order::orderBy('created_at', 'desc')->where('id_user', $this->tel)->paginate(20);
-    
+
     return view('application.accountOrders', [
       'title' => '交易记录',
       'orders' => $orders
     ]);
-    
+
   }
-  
+
   public function accountExpand(Application $wechat, $id)
   {
-    
+
     $url = 'http://' . $_SERVER['SERVER_NAME'] . '/account/bind/?tid=' . $id;
     return view('application.accountExpand', [
       'qrcode' => \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->generate($url),
       'url' => $url,
       'tid' =>$id
     ]);
-    
+
   }
-  
-  
+
+
     public function appdown(Application $wechat)
   {
-    
+
     $url = 'http://' . $_SERVER['SERVER_NAME'] . '/app.apk';
     return view('application.appdown', [
       'qrcode' => \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->generate($url),
       'url' => $url,
     ]);
-    
+
   }
-  
+
   public function support(Application $wechat)
   {
     return view('application.support', [
       'title' => '在线咨询'
     ]);
   }
-  
+
   public function supportFaq(Application $wechat)
   {
     return view('application.supportFaq', [
       'title' => '常见问题'
     ]);
   }
-  
+
   public function supportService(Application $wechat)
   {
     return view('application.supportService', [
       'title' => '在线客服'
     ]);
   }
-  
+
   public function supportFeedback(Request $request, Application $wechat)
   {
-    
+
     if ($request->isMethod('post')) {
-      
+
       if (!$request->input('content', null)
         || !$request->input('tool', null)
         || !$request->input('number', null)
@@ -610,29 +623,39 @@ class ApplicationController extends Controller
           'content' => '請將表單填寫完整，謝謝'
         ]);
       }
-      
+
       $feedback = new Feedback;
       $feedback->body_content = $request->input('content');
       $feedback->body_tool = $request->input('tool');
       $feedback->body_number = $request->input('number');
       $feedback->save();
-      
+
       return view('application.info', [
         'title' => '反馈成功',
         'icon' => 'success',
         'content' => '我们已经收到您的反馈，谢谢'
       ]);
-      
+
     } else {
-      
+
       return view('application.supportFeedback', [
         'title' => '意见反馈'
       ]);
-      
+
     }
-    
+
   }
-  
+
+  /**
+   * 新手指南 新增的 2017年05月22日11:33:31
+   */
+  public function tips()
+  {
+    return view('application.tips' , [
+      'title' => '新手指南',
+    ]);
+  }
+
   /**
    * 获取短信发送
    * @return string
@@ -646,7 +669,7 @@ public function postSMS()
     if ($type == 1) {
       $code = rand(pow(10, (6 - 1)), pow(10, 6) - 1);
       session(['code' => $code]);
-      $body = urlencode("【庆邦电商】你的验证码是" . $code . "，请在10分钟内输入。");
+      $body = urlencode("【叮咚云】您的验证码是：" . $code);
       $smsUrl = env('SMS_BASE'). env('SMS_KEY') . '&mobile='. $tel .'&content='. $body;
       $rel = explode(',', file_get_contents($smsUrl));
       $rel = explode(':',$rel[0]);
@@ -658,7 +681,7 @@ public function postSMS()
       } else {
         $code = rand(pow(10, (6 - 1)), pow(10, 6) - 1);
         session(['code' => $code]);
-      $body = urlencode("【庆邦电商】你的验证码是" . $code . "，请在10分钟内输入。");
+      $body = urlencode("【叮咚云】您的验证码是：" . $code);
       $smsUrl = env('SMS_BASE'). env('SMS_KEY') . '&mobile='. $tel .'&content='. $body;
       $rel = explode(',', file_get_contents($smsUrl));
       $rel = explode(':',$rel[0]);
@@ -667,7 +690,7 @@ public function postSMS()
       }
     }
   }
-  
+
   /**
    * 用户密码修改
    * @param Request $request
@@ -692,7 +715,7 @@ public function postSMS()
       return view('application.accountPassword');
     }
   }
-  
+
   /**
    * 用户登录
    * @param Request $request
@@ -716,7 +739,7 @@ public function postSMS()
       ]);
     }
   }
-  
+
   /**
    * 密码找回手机验证
    * @param Request $request
@@ -749,7 +772,7 @@ public function postSMS()
       ]);
     }
   }
-  
+
   /**
    * 密码找回
    * @param Request $request
@@ -782,7 +805,7 @@ public function postSMS()
       ]);
     }
   }
-  
+
   /**
    * 用户等级审核管理
    * @param Request $request
@@ -858,7 +881,7 @@ public function postSMS()
       ]);
     }
   }
-  
+
   public function Extend($id)
   {
     $users = User::findOrFail($id);
@@ -882,7 +905,27 @@ public function postSMS()
       'data' => $data
     ]);
   }
-  
+
+  /**
+   * 我的推广二维码页面
+   * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+   */
+  public function MyExtendQrcode(Application $wechat)
+  {
+
+    $tel = $this->tel;
+
+    if ( ! $url = Cache::get('qrcode.tel.' . $tel , '') ) {
+      $qrcode = $wechat->qrcode;
+      $result = $qrcode->forever($tel);
+      // $url = $result->url;
+      $url = $qrcode->url($result->ticket);
+      Cache::forever('qrcode.tel.' . $tel , $url);
+    }
+
+    return view('application.myExtendQrcode' , compact('tel' , 'url'));
+  }
+
   /**
    * 用户退出登录
    * @param Request $request
@@ -893,14 +936,14 @@ public function postSMS()
     $request->session()->flush();
     return redirect('/login');
   }
-  
+
   //获取用户ID
   public function get_users($id)
   {
     $data = User::where('id_wechat', $id)->first();
     return $data->id_wechat;
   }
-  
+
   public function recharge($dollar, $price)
   {
     header("Content-type:text/html; charset=utf-8");
@@ -949,7 +992,7 @@ public function postSMS()
       'form_url' => $form_url
     ]);
   }
-  
+
   public function Notify()
   {
     header("Content-type:text/html; charset=utf-8");
@@ -1024,7 +1067,7 @@ public function postSMS()
       echo "error1";
     }
   }
-  
+
   /**
    * 订单号生成
    * @return string
@@ -1038,7 +1081,7 @@ public function postSMS()
       . $mt . sprintf('%03d', $randNum);
     return $orderSn;
   }
-  
+
   public function rechargeRecord()
   {
     //$list = PayRequest::where('id_user', $this->tel)->orderBy('created_at', 'desc')->paginate(10);
@@ -1048,7 +1091,7 @@ public function postSMS()
       'list' => $list
     ]);
   }
-  
+
   //判断是否是手机
   public function is_mobile()
   {
@@ -1073,18 +1116,18 @@ public function postSMS()
     if ($is_ipad) {
       return true;
     } */
-	
+
 	// 如果有HTTP_X_WAP_PROFILE则一定是移动设备
     if (isset ($_SERVER['HTTP_X_WAP_PROFILE']))
     {
         return true;
-    } 
+    }
     // 如果via信息含有wap则一定是移动设备,部分服务商会屏蔽该信息
     if (isset ($_SERVER['HTTP_VIA']))
-    { 
+    {
         // 找不到为flase,否则为true
         return stristr($_SERVER['HTTP_VIA'], "wap") ? true : false;
-    } 
+    }
     // 脑残法，判断手机发送的客户端标志,兼容性有待提高
     if (isset ($_SERVER['HTTP_USER_AGENT']))
     {
@@ -1120,23 +1163,23 @@ public function postSMS()
             'midp',
             'wap',
             'mobile'
-            ); 
+            );
         // 从HTTP_USER_AGENT中查找手机浏览器的关键字
         if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT'])))
         {
             return true;
-        } 
-    } 
+        }
+    }
     // 协议法，因为有可能不准确，放到最后判断
     if (isset ($_SERVER['HTTP_ACCEPT']))
-    { 
+    {
         // 如果只支持wml并且不支持html那一定是移动设备
         // 如果支持wml和html但是wml在html之前则是移动设备
         if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== false) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html'))))
         {
             return true;
-        } 
-    } 
+        }
+    }
     return false;
   }
 }

@@ -27,7 +27,7 @@ Route::group(['middleware' => 'web'], function () {
   Route::get('/account/wechatpay/{price}', 'ApplicationController@wechatpay'); //微信支付
   Route::get('/account/zypay/{price}', 'ApplicationController@zypay'); //中云支付
   Route::get('/account/zypayb/{price}', 'ApplicationController@zypayb'); //中云支付
-  Route::get('/account/xftali', 'ApplicationController@xftali'); //个人支付宝支付  
+  Route::get('/account/xftali', 'ApplicationController@xftali'); //个人支付宝支付
   Route::get('/account/recharge/{dollar}/{price}', 'ApplicationController@recharge'); //环迅支付
   Route::any('/pay/notify', 'ApplicationController@Notify'); //支付成功
   Route::get('/account/rechargeRecord', 'ApplicationController@rechargeRecord'); //充值纪录
@@ -66,10 +66,12 @@ Route::group(['middleware' => ['web', 'admin.login']], function () {
   Route::get('/support/faq', 'ApplicationController@supportFaq');
   Route::get('/support/service', 'ApplicationController@supportService');
   Route::any('/support/feedback', 'ApplicationController@supportFeedback');
+  Route::any('/support/tips', 'ApplicationController@tips');
 
   Route::any('/account/updatePassword/{id}', 'ApplicationController@updatePassword'); //用户修改密码
   Route::any('/account/grade/{id}', 'ApplicationController@Grade');  //等级申请
   Route::get('/account/extend/{id}', 'ApplicationController@Extend'); //推广用户信息
+  Route::get('/account/myextend/qrcode' , 'ApplicationController@MyExtendQrcode'); // 我的推广二维码
   Route::get('/appdown', 'ApplicationController@appdown');
   Route::get('/account/loginOut', 'ApplicationController@loginOut'); //用户退出登录
 });

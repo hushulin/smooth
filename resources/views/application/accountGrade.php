@@ -16,10 +16,12 @@
       <td><a data-stake="100" class="button_tap weui_btn weui_btn_plain_primary">初级经纪人</a></td>
       <td><a data-stake="200" class="button_tap weui_btn weui_btn_plain_default">高级经纪人MIB</a></td>
     </tr>
+    <!--
     <tr>
       <td><a data-stake="300" class="button_tap weui_btn weui_btn_plain_default">白金经纪人PIB</a></td>
       <td><a data-stake="400" class="button_tap weui_btn weui_btn_plain_default">星级白金经纪人</a></td>
     </tr>
+    -->
   </table>
 
   <div class="weui_btn_area">

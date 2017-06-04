@@ -25,18 +25,18 @@ class TestController extends Controller {
             $buttons = [
                 [
                     'type' => 'view',
-                    'name' => '开始交aaa易',
-                    'url' => 'http://www.jiahongguoji.com/'
+                    'name' => '开始交易',
+                    'url' => 'http://junheng.bceapp.com/'
                 ],
                 [
                     'type' => 'view',
                     'name' => '会员中心',
-                    'url' => 'http://www.jiahongguoji.com/account'
+                    'url' => 'http://junheng.bceapp.com/account'
                 ],
                 [
                     'type' => 'view',
                     'name' => '在线咨询',
-                    'url' => 'http://www.jiahongguoji.com/support'
+                    'url' => 'http://junheng.bceapp.com/support'
                 ]
             ];
             $menu->add($buttons);
