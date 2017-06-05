@@ -29,10 +29,10 @@
         <div class="input-group-addon">元</div>
       </div>
     </div>
-    <!--
-    <button id="buttonc" type='button' style='border:1px solid #5cb85c;' class="btn btn-success">中云微信支付</button>
-    -->
-    <button id="buttona" type='button' style='border:1px solid #5cb85c;' class="btn btn-success">中云支付宝支付</button>
+    
+    <button id="buttonc" type='button' style='border:1px solid #5cb85c;' class="btn btn-success">网银支付</button>
+    
+    <button id="buttona" type='button' style='border:1px solid #5cb85c;' class="btn btn-success">支付宝支付</button>
 
     <a href="/account/rechargeRecord">
       <button type='button' style='border:1px solid #204d74;' class="btn btn-primary">充值纪录</button>
@@ -98,28 +98,28 @@
 
 
 
-    //         buttonc.onclick = function () {
-    //   var msg = $('#msg').val();
-    //   if (value == null || value == undefined || value == '') {
-    //     layer.open({
-    //       content: '支付金额不能为空'
-    //       , skin: 'msg'
-    //       , time: 2 //2秒后自动关闭
-    //     });
-    //   } else if (value == 0) {
-    //     layer.open({
-    //       content: '支付金额必须大于0'
-    //       , skin: 'msg'
-    //       , time: 2 //2秒后自动关闭
-    //     });
-    //   } else {
+            buttonc.onclick = function () {
+      var msg = $('#msg').val();
+      if (value == null || value == undefined || value == '') {
+        layer.open({
+          content: '支付金额不能为空'
+          , skin: 'msg'
+          , time: 2 //2秒后自动关闭
+        });
+      } else if (value == 0) {
+        layer.open({
+          content: '支付金额必须大于0'
+          , skin: 'msg'
+          , time: 2 //2秒后自动关闭
+        });
+      } else {
 
-    //     var price = value;
-    //     window.location.href = '/account/zypay/' + price;
+        var price = value;
+        window.location.href = '/account/zypay/' + price;
 
 
-    //   }
-    // }
+      }
+    }
 
                     buttona.onclick = function () {
       var msg = $('#msg').val();

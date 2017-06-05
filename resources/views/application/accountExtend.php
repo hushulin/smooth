@@ -40,7 +40,6 @@
 </style>
 <table border="0">
   <tbody>
-  <!--
   <tr>
     <td>我的上级</td>
   </tr>
@@ -49,7 +48,6 @@
                                   class="weui_btn weui_btn_default"><?php echo $superior == null ? '无' : $superior; ?></a>
     </td>
   </tr>
-  -->
   <tr>
     <td>各等级人数</td>
   </tr>
