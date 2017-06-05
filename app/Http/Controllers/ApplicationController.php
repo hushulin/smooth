@@ -314,7 +314,8 @@ class ApplicationController extends Controller
                 'pay_orderid' => date('YmdHis'),
                 'pay_amount' => $payRequest->body_stake,
                 'pay_applydate' => date('Y-m-d H:i:s'),
-                'pay_bankcode' => 'WXZF',
+                // 'pay_bankcode' => 'WXZF',
+                'pay_bankcode' => 'SPDB',
                 'pay_notifyurl' => env('PAYMENT_URL_NO'),
                 'pay_callbackurl' => env('PAYMENT_URL_RE'),
             );
@@ -327,7 +328,8 @@ class ApplicationController extends Controller
             $parameters['pay_md5sign'] = $sign;
 
 			$pay_reserved1 = $payRequest->id; /*新增*/
-			$tongdao = 'JiuXiaoWxSm';
+      // $tongdao = 'JiuXiaoWxSm';
+			$tongdao = 'Gopaywap';
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
