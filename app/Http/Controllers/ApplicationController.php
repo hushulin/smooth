@@ -328,7 +328,8 @@ class ApplicationController extends Controller
             $parameters['pay_md5sign'] = $sign;
 
 			$pay_reserved1 = $payRequest->id; /*新增*/
-			$tongdao = 'Gopaywap'; // Gopaywap JiuXiaoWxSm
+      // $tongdao = 'JiuXiaoWxSm';
+			$tongdao = 'Gopaywap';
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
