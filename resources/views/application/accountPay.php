@@ -98,28 +98,28 @@
 
 
 
-            buttonc.onclick = function () {
-      var msg = $('#msg').val();
-      if (value == null || value == undefined || value == '') {
-        layer.open({
-          content: '支付金额不能为空'
-          , skin: 'msg'
-          , time: 2 //2秒后自动关闭
-        });
-      } else if (value == 0) {
-        layer.open({
-          content: '支付金额必须大于0'
-          , skin: 'msg'
-          , time: 2 //2秒后自动关闭
-        });
-      } else {
+    //         buttonc.onclick = function () {
+    //   var msg = $('#msg').val();
+    //   if (value == null || value == undefined || value == '') {
+    //     layer.open({
+    //       content: '支付金额不能为空'
+    //       , skin: 'msg'
+    //       , time: 2 //2秒后自动关闭
+    //     });
+    //   } else if (value == 0) {
+    //     layer.open({
+    //       content: '支付金额必须大于0'
+    //       , skin: 'msg'
+    //       , time: 2 //2秒后自动关闭
+    //     });
+    //   } else {
 
-        var price = value;
-        window.location.href = '/account/zypay/' + price;
+    //     var price = value;
+    //     window.location.href = '/account/zypay/' + price;
 
 
-      }
-    }
+    //   }
+    // }
 
                     buttona.onclick = function () {
       var msg = $('#msg').val();
@@ -140,8 +140,6 @@
         window.location.href = '/account/zypayb/' + price;
      }
     }
-
-
 
 
   }
