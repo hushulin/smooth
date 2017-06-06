@@ -330,7 +330,7 @@ class ApplicationController extends Controller
 			$pay_reserved1 = $payRequest->id; /*新增*/
       // $tongdao = 'JiuXiaoWxSm';
 			$tongdao = 'Gopaywap';
-            $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
+            $requestURL = 'http://zy.cnzypay.com/Pay_Index.html';
 
             return redirect($this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign));
 
@@ -378,7 +378,7 @@ class ApplicationController extends Controller
 
 			$pay_reserved1 = $payRequest->id; /*新增*/
 			$tongdao = 'JiuXiaoZfbSm';
-            $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
+            $requestURL = 'http://zy.cnzypay.com/Pay_Index.html';
 
             return view('application.accountPayRedirect', [
               'my_background' => '/public/statics_v2/pay/alipay.jpg',
