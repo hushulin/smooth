@@ -332,15 +332,17 @@ class ApplicationController extends Controller
 			$tongdao = 'Gopaywap';
             $requestURL = 'http://zf.cnzypay.com/Pay_Index.html';
 
-            return view('application.accountPayRedirect', [
-              'my_background' => '/public/statics_v2/pay/wxpay.jpg',
-              'my_qrcode_url' => $this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign),
-			    'pay_reserved1' => $pay_reserved1,
-			    'tongdao' => $tongdao,
-                'requestURL' => $requestURL,
-                'parameters' => $parameters,
-                'sign' => $sign
-            ]);
+            return redirect($this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign));
+
+       //      return view('application.accountPayRedirect', [
+       //        'my_background' => '/public/statics_v2/pay/wxpay.jpg',
+       //        'my_qrcode_url' => $this->getQrcode($requestURL , $parameters , $pay_reserved1 , $tongdao , $sign),
+			    // 'pay_reserved1' => $pay_reserved1,
+			    // 'tongdao' => $tongdao,
+       //          'requestURL' => $requestURL,
+       //          'parameters' => $parameters,
+       //          'sign' => $sign
+       //      ]);
 
 }
 
